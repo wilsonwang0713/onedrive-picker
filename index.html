@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OneDrive Picker + Graph API</title>
+  <script src="https://alcdn.msauth.net/browser/msal-browser.min.js"></script>
+  <script src="https://js.live.net/v7.2/OneDrive.js"></script>
+</head>
+<body>
+  <h2>🔐 OneDrive 原生選擇器測試</h2>
+  <button onclick="signIn()">1️⃣ 登入 Microsoft</button>
+  <button onclick="openOneDrive()">2️⃣ 開啟 OneDrive File Picker</button>
+  <pre id="output"></pre>
+
+  <script>
+    const msalConfig = {
+      auth: {
+        clientId: "0e84f375-3253-4903-a67b-8c26ec405793", // <<<<<<<< 換成你自己的
+        authority: "https://login.microsoftonline.com/be2d5505-f7e6-4600-bbe2-b3201c91b344", // <<<<<<<< 換成你自己的
+        redirectUri: "https://localhost"
+      }
+    };
+
+    const msalInstance = new msal.PublicClientApplication(msalConfig);
+    let accessToken = "";
+
+    async function signIn() {
+      try {
+        const loginResponse = await msalInstance.loginPopup({
+          scopes: ["Files.Read.All"]
+        });
+        accessToken = loginResponse.accessToken;
+        document.getElementById("output").innerText = "✅ 登入成功，Access Token 已取得";
+      } catch (err) {
+        console.error(err);
+        alert("登入失敗！");
+      }
+    }
+
+    function openOneDrive() {
+      if (!accessToken) {
+        alert("請先登入！");
+        return;
+      }
+
+      OneDrive.open({
+        clientId: msalConfig.auth.clientId,
+        action: "query",
+        multiSelect: false,
+        advanced: {
+          accessToken: accessToken
+        },
+        success: function (files) {
+          const file = files.value[0];
+          document.getElementById("output").innerText =
+            "✅ 選擇檔案成功：\n" +
+            "📄 檔名：" + file.name + "\n" +
+            "📦 檔案大小：" + file.size + " bytes\n" +
+            "🔗 下載連結（短效）：" + file['@microsoft.graph.downloadUrl'];
+        },
+        cancel: function () {
+          document.getElementById("output").innerText = "⚠️ 使用者取消選擇";
+        },
+        error: function (e) {
+          document.getElementById("output").innerText = "❌ 發生錯誤：" + JSON.stringify(e);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
