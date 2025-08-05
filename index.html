@@ -51,15 +51,23 @@
         advanced: {
           accessToken: accessToken
         },
+      
         success: function (files) {
-          console.log("✅ OneDrive Picker 回傳：", files);
-          const file = files.value[0];
-          document.getElementById("output").innerText =
-            "✅ 選擇檔案成功：\n" +
-            "📄 檔名：" + file.name + "\n" +
-            "📦 檔案大小：" + file.size + " bytes\n" +
-            "🔗 下載連結（短效）：" + file['@microsoft.graph.downloadUrl'];
-        },
+  console.log("✅ OneDrive Picker 回傳：", files);
+
+  const fileArray = files?.value || [];
+  if (!Array.isArray(fileArray) || fileArray.length === 0) {
+    document.getElementById("output").innerText = "⚠️ 沒有選擇任何檔案";
+    return;
+  }
+
+  const file = fileArray[0];
+  document.getElementById("output").innerText =
+    "✅ 選擇檔案成功：\n" +
+    "📄 檔名：" + file.name + "\n" +
+    "📦 檔案大小：" + file.size + " bytes\n" +
+    "🔗 下載連結：" + file['@microsoft.graph.downloadUrl'];
+},
         cancel: function () {
           document.getElementById("output").innerText = "⚠️ 使用者取消選擇";
         },
