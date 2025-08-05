@@ -52,6 +52,7 @@
           accessToken: accessToken
         },
         success: function (files) {
+          console.log("✅ OneDrive Picker 回傳：", files);
           const file = files.value[0];
           document.getElementById("output").innerText =
             "✅ 選擇檔案成功：\n" +
@@ -62,9 +63,11 @@
         cancel: function () {
           document.getElementById("output").innerText = "⚠️ 使用者取消選擇";
         },
-        error: function (e) {
-          document.getElementById("output").innerText = "❌ 發生錯誤：" + JSON.stringify(e);
-        }
+       error: function (e) {
+          console.error("❌ OneDrive Picker 發生錯誤：", e);  // ← console 顯示完整錯誤
+          document.getElementById("output").innerText =
+          "❌ 發生錯誤：\\n" + JSON.stringify(e, null, 2);  // ← HTML 格式化顯示錯誤
+}
       });
     }
   </script>
